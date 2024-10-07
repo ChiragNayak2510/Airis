@@ -1,13 +1,19 @@
 import React from 'react';
-import Home from '../components/Home';
-import Toggle from '../components/Toggle';
+import Login from '@/components/Login';
+import Register from '@/components/Register';
+import Navbar from '@/components/Navbar';
+
 const Page = () => {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground">
-      <Toggle/>
-      <Home />
+    <div className="min-h-screen bg-background text-foreground">
+      <Navbar />
+      <div className="main-container flex flex-col items-center justify-center">
+        <Register />
+        <Login />
+        
+      </div>
     </div>
   );
-}
+};
 
 export default Page;

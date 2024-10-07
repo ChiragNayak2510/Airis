@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 
 const ThemeToggle = () => {
+  console.log('toggle')
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
