@@ -1,17 +1,35 @@
-'use client'
+'use client';
 
-import { usePathname } from 'next/navigation'
-import Link from 'next/link'
+import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 import * as React from "react";
+import { GiArtificialHive } from 'react-icons/gi';
+import { Button } from './ui/button';
+import useLoginModal from '@/hooks/useLoginModal';
+import useRegisterModal from '@/hooks/useRegisterModal';
+
+interface UserInterface {
+  userId?: number;
+  username: string;
+  email: string;
+}
 
 export default function Navbar() {
+  const registerModal = useRegisterModal();
+  const loginModal = useLoginModal(); 
   const pathname = usePathname();
+  
+  const user: UserInterface | null = null; 
 
   return (
-    <div className="fixed top-0 left-0 w-full bg-black h-16 shadow-lg z-50 px-56">
-      <div className="w-full flex items-center p-4 justify-between text-md">
-
+    <div className="fixed top-0 left-1/2 transform -translate-x-1/2 w-full bg-black h-16 shadow-lg z-50 flex">
+      <div className="flex items-center justify-between w-full max-w-6xl mx-auto px-4">
+        {/* Left Section */}
         <div className="flex items-center gap-6">
+          <div className='flex items-center justify-center gap-2'>
+            <GiArtificialHive color="white" size={40} />
+            <p className='font-bold mr-2 text-lg'>Airis</p>
+          </div>
           <Link
             href="/"
             className={`text-gray-400 hover:text-gray-200 ${
@@ -24,7 +42,7 @@ export default function Navbar() {
           <Link
             href="/prompt"
             className={`text-gray-400 hover:text-gray-200 ${
-              pathname === "/about" ? "text-white" : ""
+              pathname === "/prompt" ? "text-white" : ""
             }`}
           >
             Prompt
@@ -32,7 +50,7 @@ export default function Navbar() {
           <Link
             href="/graph"
             className={`text-gray-400 hover:text-gray-200 ${
-              pathname === "/services" ? "text-white" : ""
+              pathname === "/graph" ? "text-white" : ""
             }`}
           >
             Graph
@@ -40,21 +58,24 @@ export default function Navbar() {
           <Link
             href="/docs"
             className={`text-gray-400 hover:text-gray-200 ${
-              pathname === "/contact" ? "text-white" : ""
+              pathname === "/docs" ? "text-white" : ""
             }`}
           >
             Documentation
           </Link>
         </div>
 
-        <Link
-          href="/profile"
-          className={`text-gray-400 text-lg hover:underline ${
-            pathname === "/profile" ? "text-white" : ""
-          }`}
-        >
-          Profile
-        </Link>
+        {/* Right Section */}
+        <div className="hidden md:flex items-center gap-4">
+          {user ? (
+            <span className="text-gray-400">{user.username}</span>
+          ) : (
+            <>
+              <Button onClick={loginModal.onOpen}>Sign In</Button>
+              <Button onClick={registerModal.onOpen} variant={'outline'}>Sign Up</Button>  
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

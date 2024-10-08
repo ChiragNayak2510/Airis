@@ -13,8 +13,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import Modal from "./Modal"; // Import the Modal component
-import useLoginModal from "@/hooks/useLoginModal"; // Import login modal for switching
+import Modal from "./Modal"; 
+import useLoginModal from "@/hooks/useLoginModal";
 
 const RegisterSchema = z.object({
   username: z.string().min(2, {
