@@ -2,11 +2,8 @@
 
 import React from 'react'
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import Login from './Login';
-import Register from './Register';
 import useLoginModal from '@/hooks/useLoginModal';
 import useRegisterModal from '@/hooks/useRegisterModal';
 

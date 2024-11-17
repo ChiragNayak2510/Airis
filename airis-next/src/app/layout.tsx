@@ -1,7 +1,7 @@
 import React from 'react';
-import Navbar from '@/components/Navbar';
 import Login from '@/components/Login';
 import Register from '@/components/Register';
+import { Toaster } from "@/components/ui/toaster"
 import '@/styles/globals.css';
 
 export const metadata = {
@@ -20,6 +20,7 @@ export default function RootLayout({
           <main>{children}</main>
         <Login />
         <Register /> 
+        <Toaster/>
       </body>
     </html>
   );

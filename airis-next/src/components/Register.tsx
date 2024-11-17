@@ -51,7 +51,7 @@ export function Register() {
     // console.log(data);
     try {
 
-      const res = await fetch('http://192.168.1.7:3000/signup',{
+      const res = await fetch('https://airis-backend.onrender.com/signup',{
         method:"POST",
         headers:{
           "Content-Type":"application/json",

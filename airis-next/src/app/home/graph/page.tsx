@@ -6,24 +6,21 @@ import {
   Background,
   Handle,
   Position,
-  Node,
   Edge,
 } from '@xyflow/react';
-import { FaArrowRight } from "react-icons/fa6";
+import { FaArrowRight, FaClipboard } from "react-icons/fa6";
 import '@xyflow/react/dist/style.css';
 import useGraphStore from '@/hooks/useGraphStore';
+import CodeModal from '@/components/CodeModal'; 
+import HashLoader from "react-spinners/HashLoader";
+import { useToast } from "@/hooks/use-toast"
 
-// Define types for AWS icon
+
 type AwsIcon = {
   id: string;
   label: string;
   image: string;
 };
-
-const handleGraph = () => {
-  //do nothing
-}
-
 
 const awsIcons: AwsIcon[] = [
   { id: 'ec2', label: 'EC2', image: '/images/EC2.svg' },
@@ -31,7 +28,6 @@ const awsIcons: AwsIcon[] = [
   { id: 'elb', label: 'Load Balancer', image: '/images/Elastic Load Balancing.svg' },
   { id: 's3', label: 'S3', image: '/images/Simple Storage Service.svg' },
 ];
-
 
 const AWSIconNode: React.FC<{ data: AwsIcon & { id: string; onDelete: (id: string) => void } }> = ({ data }) => (
   <div className="relative p-2 flex flex-col justify-center items-center gap-2 bg-gray-800 rounded-lg">
@@ -63,7 +59,10 @@ const Graph: React.FC = () => {
     setEdges,
   } = useGraphStore();
 
-  const [idStore, setIdStore] = useState<number>(0); 
+  const [idStore, setIdStore] = useState<number>(0);
+  const [terraformCode, setTerraformCode] = useState<string>('');
+  const [isCodeModalOpen, setIsCodeModalOpen] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const addNode = (icon: AwsIcon) => {
     setNodes([
@@ -80,14 +79,43 @@ const Graph: React.FC = () => {
         },
       },
     ]);
-    console.log(nodes)
-    setIdStore(idStore + 1); 
+    setIdStore(idStore + 1);
+  };
+
+  const { toast } = useToast()
+  const convertTerraformToText = (terraformCode: string) => {
+    return terraformCode.replace(/\\n/g, '\n').replace(/\\"/g, '"');
+  };
+
+  const handleGraph = async () => {
+    setIsLoading(true); // Start spinner
+    setIsCodeModalOpen(true); // Open modal immediately
+
+    try {
+      const response = await fetch('https://airis-backend.onrender.com/fromGraph', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ nodes, edges }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const { data } = await response.json();
+      const formattedCode = convertTerraformToText(data.terraform);
+      setTerraformCode(formattedCode); 
+    } catch (err) {
+      console.error('Error:', err);
+      alert('Something went wrong while generating the code. Please try again.');
+    } finally {
+      setIsLoading(false); 
+    }
   };
 
   const onDeleteNode = (id: string) => {
-    console.log(id)
-    console.log(nodes)
-    console.log(edges)
     setNodes(nodes.filter((node) => node.id !== id));
     setEdges(edges.filter((edge) => edge.source !== id && edge.target !== id));
   };
@@ -102,18 +130,26 @@ const Graph: React.FC = () => {
 
   return (
     <div className="flex justify-center">
+      {/* Sidebar for AWS icons */}
       <div className="h-full w-16 flex flex-col">
         {awsIcons.map((icon) => (
           <button key={icon.id} onClick={() => addNode(icon)}>
             <img src={icon.image} alt={`${icon.label} icon`} />
           </button>
         ))}
-        <button onClick={handleGraph} className='h-[55px] bg-white flex items-center justify-center'>
-              <FaArrowRight size={32} color='black'/>
-        </button>
       </div>
 
-      <div className="h-[100vh] w-full">
+      {/* React Flow Canvas */}
+      <div className="h-[100vh] w-full relative">
+        {/* Fixed Button for Code Generation */}
+        <button
+          onClick={handleGraph}
+          className="absolute top-4 right-4 z-20 bg-white text-black px-4 py-2 rounded-lg shadow-lg hover:bg-gray-300"
+        >
+          <FaArrowRight size={24} className="inline-block mr-2" />
+          Generate
+        </button>
+
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -127,6 +163,43 @@ const Graph: React.FC = () => {
         >
           <Background color="#aaa" gap={16} />
         </ReactFlow>
+
+        {/* Code Modal */}
+        <CodeModal
+        title={
+          isLoading ? "Generating terraform code..." : "Terraform code"
+        }
+        isOpen={isCodeModalOpen}
+        onClose={() => setIsCodeModalOpen(false)}
+        bodyContent={
+          isLoading ? (
+            <div className="flex justify-center items-center h-64">
+              <HashLoader color="white" />
+            </div>
+          ) : (
+            <div className="relative">
+              {terraformCode && (
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(terraformCode);
+                    toast({
+                      description : 'Copied to clipboard'
+                    })
+                  }}
+                  className="absolute top-2 right-2 bg-black p-2 rounded-full text-gray-300 hover:text-white hover:bg-gray-700 z-10"
+                  aria-label="Copy to clipboard"
+                >
+                  <FaClipboard size={20} />
+                </button>
+              )}
+              <pre className="bg-[#212121] text-white p-4 rounded overflow-auto whitespace-pre-wrap">
+                {terraformCode}
+              </pre>
+            </div>
+          )
+  }
+/>
+
       </div>
     </div>
   );

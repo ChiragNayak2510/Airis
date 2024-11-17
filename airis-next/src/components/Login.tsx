@@ -40,7 +40,7 @@ export function Login() {
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
-      const res = await fetch('http://192.168.1.7:3000/login',{
+      const res = await fetch('https://airis-backend.onrender.com/login',{
         method:"POST",
         headers:{
           "Content-Type":"application/json",

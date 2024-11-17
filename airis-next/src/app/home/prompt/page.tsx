@@ -1,8 +1,9 @@
 'use client';
 
 import { Input } from '@/components/ui/input';
+import { toast, useToast } from '@/hooks/use-toast';
 import React, { useState } from 'react';
-import { FaArrowCircleUp } from "react-icons/fa";
+import { FaArrowCircleUp, FaClipboard } from "react-icons/fa";
 import HashLoader from "react-spinners/HashLoader";
 
 const PromptPage = () => {
@@ -18,8 +19,9 @@ const PromptPage = () => {
     return terraformCode.replace(/\\n/g, '\n').replace(/\\"/g, '"');
   };
 
+  const {toast} = useToast()
   const handleGenerateCode = async () => {
-    setCode(null)
+    setCode(null);
     if (!prompt.trim()) {
       alert('Invalid prompt');
       setCode(null);
@@ -55,7 +57,24 @@ const PromptPage = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-between p-4 gap-4">
       {/* Code Section */}
-      <div className="w-full max-w-2xl bg-[#212121] p-4 rounded overflow-y-auto flex-1">
+      <div className="relative w-full max-w-2xl bg-[#212121] p-4 rounded overflow-y-auto flex-1">
+        {/* Copy to Clipboard Button */}
+        {code && (
+          <button
+            onClick={() => {
+              if (code) {
+                navigator.clipboard.writeText(code).then(
+                  () => toast({description:'Code copied to clipboard!'}),
+                  (err) => console.error('Could not copy text: ', err)
+                );
+              }
+            }}
+            className="absolute top-2 right-2 bg-gray-800 p-2 rounded-full text-gray-300 hover:text-white hover:bg-gray-700 z-10"
+            aria-label="Copy to clipboard"
+          >
+            <FaClipboard size={20} />
+          </button>
+        )}
         {!code ? (
           <div className="flex items-center justify-center min-h-screen text-gray-300">
             {isLoading ? (
