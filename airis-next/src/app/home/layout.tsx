@@ -17,16 +17,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="bg-background text-foreground">
-        {/* <Navbar />
+        <Navbar />
         <main>
         <div className="min-h-screen bg-black text-white">
-        <div className="main-container h-full mt-16"> */}
-          <main>{children}</main>
-          {/* </div>
+        <div className="main-container h-full mt-16">
+          {children}
           </div>
-        </main>*/}
+          </div>
+        </main>
         <Login />
-        <Register /> 
+        <Register />
       </body>
     </html>
   );

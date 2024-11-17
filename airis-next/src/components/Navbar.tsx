@@ -31,7 +31,7 @@ export default function Navbar() {
             <p className='font-bold mr-2 text-lg'>Airis</p>
           </div>
           <Link
-            href="/"
+            href="/home/"
             className={`text-gray-400 hover:text-gray-200 ${
               pathname === "/" ? "text-white" : ""
             }`}
@@ -40,7 +40,7 @@ export default function Navbar() {
           </Link>
 
           <Link
-            href="/prompt"
+            href="/home/prompt"
             className={`text-gray-400 hover:text-gray-200 ${
               pathname === "/prompt" ? "text-white" : ""
             }`}
@@ -48,7 +48,7 @@ export default function Navbar() {
             Prompt
           </Link>
           <Link
-            href="/graph"
+            href="/home/graph"
             className={`text-gray-400 hover:text-gray-200 ${
               pathname === "/graph" ? "text-white" : ""
             }`}
@@ -56,7 +56,7 @@ export default function Navbar() {
             Graph
           </Link>
           <Link
-            href="/docs"
+            href="/home/docs"
             className={`text-gray-400 hover:text-gray-200 ${
               pathname === "/docs" ? "text-white" : ""
             }`}
@@ -68,7 +68,7 @@ export default function Navbar() {
         {/* Right Section */}
         <div className="hidden md:flex items-center gap-4">
           {user ? (
-            <span className="text-gray-400">{user.username}</span>
+            <span className="text-gray-400">{user}</span>
           ) : (
             <>
               <Button onClick={loginModal.onOpen}>Sign In</Button>

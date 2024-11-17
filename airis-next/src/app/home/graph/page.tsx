@@ -11,7 +11,7 @@ import {
 } from '@xyflow/react';
 
 import '@xyflow/react/dist/style.css';
-import useGraphStore from '../../hooks/useGraphStore';
+import useGraphStore from '@/hooks/useGraphStore';
 
 // Define types for AWS icon
 type AwsIcon = {
