@@ -9,7 +9,7 @@ import {
   Node,
   Edge,
 } from '@xyflow/react';
-
+import { FaArrowRight } from "react-icons/fa6";
 import '@xyflow/react/dist/style.css';
 import useGraphStore from '@/hooks/useGraphStore';
 
@@ -19,6 +19,10 @@ type AwsIcon = {
   label: string;
   image: string;
 };
+
+const handleGraph = () => {
+  //do nothing
+}
 
 
 const awsIcons: AwsIcon[] = [
@@ -98,12 +102,15 @@ const Graph: React.FC = () => {
 
   return (
     <div className="flex justify-center">
-      <div className="h-full w-16 bg-white flex flex-col">
+      <div className="h-full w-16 flex flex-col">
         {awsIcons.map((icon) => (
           <button key={icon.id} onClick={() => addNode(icon)}>
             <img src={icon.image} alt={`${icon.label} icon`} />
           </button>
         ))}
+        <button onClick={handleGraph} className='h-[55px] bg-white flex items-center justify-center'>
+              <FaArrowRight size={32} color='black'/>
+        </button>
       </div>
 
       <div className="h-[100vh] w-full">
