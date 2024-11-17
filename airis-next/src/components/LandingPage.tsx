@@ -45,9 +45,9 @@ const LandingPage = () => {
             </main>
 
             {/* Features Section */}
-            <section className="py-12 bg-gray-800/20">
+            <section className="py-12 bg-gray-800/20">``
                 <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Card>
+                    <Card className='bg-gray-600/20 p-5 rounded-xl'>
                         <CardHeader>
                             <h3 className="text-xl font-semibold">Intuitive Diagram Editor</h3>
                         </CardHeader>
@@ -57,7 +57,7 @@ const LandingPage = () => {
                             </p>
                         </CardContent>
                     </Card>
-                    <Card>
+                    <Card className='bg-gray-600/20 p-5 rounded-xl'>
                         <CardHeader>
                             <h3 className="text-xl font-semibold">Terraform Code Generation</h3>
                         </CardHeader>
@@ -67,7 +67,7 @@ const LandingPage = () => {
                             </p>
                         </CardContent>
                     </Card>
-                    <Card>
+                    <Card className='bg-gray-600/20 p-5 rounded-xl'>
                         <CardHeader>
                             <h3 className="text-xl font-semibold">Dark Mode Support</h3>
                         </CardHeader>
@@ -77,7 +77,7 @@ const LandingPage = () => {
                             </p>
                         </CardContent>
                     </Card>
-                    <Card>
+                    <Card className='bg-gray-600/20 p-5 rounded-xl'>
                         <CardHeader>
                             <h3 className="text-xl font-semibold">Easy Integration</h3>
                         </CardHeader>
