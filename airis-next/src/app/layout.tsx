@@ -17,14 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="bg-background text-foreground">
-        {/* <Navbar />
-        <main>
-        <div className="min-h-screen bg-black text-white">
-        <div className="main-container h-full mt-16"> */}
           <main>{children}</main>
-          {/* </div>
-          </div>
-        </main>*/}
         <Login />
         <Register /> 
       </body>

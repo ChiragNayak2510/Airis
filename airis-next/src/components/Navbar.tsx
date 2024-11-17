@@ -5,8 +5,6 @@ import Link from 'next/link';
 import * as React from "react";
 import { GiArtificialHive } from 'react-icons/gi';
 import { Button } from './ui/button';
-import useLoginModal from '@/hooks/useLoginModal';
-import useRegisterModal from '@/hooks/useRegisterModal';
 
 interface UserInterface {
   userId?: number;
@@ -16,15 +14,13 @@ interface UserInterface {
 
 export default function Navbar() {
   const router = useRouter()
-  const registerModal = useRegisterModal();
-  const loginModal = useLoginModal(); 
   const pathname = usePathname();
   
   const user: UserInterface | null = null; 
 
   const logout = () => {
     localStorage.setItem('token', "")
-    router.push('/')
+    router.push("/")
   }
 
   return (
@@ -77,7 +73,7 @@ export default function Navbar() {
             <span className="text-gray-400">{user}</span>
           ) : (
             <>
-              <Button className='bg-red-500' variant={"destructive"} onClick={()=>logout()}>Logout</Button>
+              <Button className='bg-red-500' variant={"destructive"} onClick={logout}>Logout</Button>
               {/* <Button onClick={registerModal.onOpen} variant={'outline'}>Sign Up</Button>   */}
             </>
           )}
