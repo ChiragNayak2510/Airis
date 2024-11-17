@@ -15,12 +15,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="bg-background text-foreground">
-          <main>{children}</main>
-        <Login />
-        <Register /> 
-      </body>
-    </html>
+  
+      <div className="bg-background text-foreground">
+        <Navbar />
+        <main>
+        <div className="min-h-screen bg-black text-white">
+        <div className="main-container h-full mt-16">
+          {children}
+          </div>
+          </div>
+        </main>
+
+      </div>
+
   );
 }

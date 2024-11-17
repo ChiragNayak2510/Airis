@@ -15,9 +15,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Modal from "./Modal"; // Import the Modal component
+import { useRouter } from "next/navigation";
 
 const FormSchema = z.object({
-  username: z.string().min(2, {
+  email: z.string().min(2, {
     message: "Username must be at least 2 characters.",
   }),
   password: z.string().min(6, {
@@ -26,19 +27,34 @@ const FormSchema = z.object({
 });
 
 export function Login() {
+  const router= useRouter()
   const loginModal = useLoginModal(); 
   const registerModal = useRegisterModal(); 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      username: "",
+      email: "",
       password: "",
     },
   });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
-      console.log(data.username);
+      const res = await fetch('http://192.168.1.7:3000/login',{
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json",
+        },
+        body:JSON.stringify(data)
+      })
+      const r = await res.json()
+      if(r.success){
+        localStorage.setItem("token", r?.data?.token)
+        loginModal.onClose()
+        router.push('/home')
+      }else{
+        alert(r?.message)
+      }
     } catch (error) {
       console.error("Login error:", error);
     } 
@@ -58,12 +74,12 @@ export function Login() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
           control={form.control}
-          name="username"
+          name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Username</FormLabel>
+              <FormLabel>email</FormLabel>
               <FormControl>
-                <Input placeholder="Enter your username" {...field} />
+                <Input placeholder="Enter your email" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -110,7 +126,7 @@ export function Login() {
           </span>
         </p>
       }
-      onSubmit={onSubmit}
+      onSubmit={form.handleSubmit(onSubmit)}
     />
   );
 }
