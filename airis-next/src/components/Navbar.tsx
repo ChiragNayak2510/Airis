@@ -1,6 +1,6 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import * as React from "react";
 import { GiArtificialHive } from 'react-icons/gi';
@@ -15,11 +15,17 @@ interface UserInterface {
 }
 
 export default function Navbar() {
+  const router = useRouter()
   const registerModal = useRegisterModal();
   const loginModal = useLoginModal(); 
   const pathname = usePathname();
   
   const user: UserInterface | null = null; 
+
+  const logout = () => {
+    localStorage.setItem('token', "")
+    router.push('/')
+  }
 
   return (
     <div className="fixed top-0 left-1/2 transform -translate-x-1/2 w-full bg-black h-16 shadow-lg z-50 flex">
@@ -71,8 +77,8 @@ export default function Navbar() {
             <span className="text-gray-400">{user}</span>
           ) : (
             <>
-              <Button onClick={loginModal.onOpen}>Sign In</Button>
-              <Button onClick={registerModal.onOpen} variant={'outline'}>Sign Up</Button>  
+              <Button className='bg-red-500' variant={"destructive"} onClick={()=>logout()}>Logout</Button>
+              {/* <Button onClick={registerModal.onOpen} variant={'outline'}>Sign Up</Button>   */}
             </>
           )}
         </div>

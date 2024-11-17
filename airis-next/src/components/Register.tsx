@@ -48,7 +48,7 @@ export function Register() {
   });
 
   async function onSubmit(data: z.infer<typeof RegisterSchema>) {
-    console.log(data);
+    // console.log(data);
     try {
 
       const res = await fetch('http://192.168.1.7:3000/signup',{
