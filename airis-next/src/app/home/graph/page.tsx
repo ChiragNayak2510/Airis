@@ -88,8 +88,8 @@ const Graph: React.FC = () => {
   };
 
   const handleGraph = async () => {
-    setIsLoading(true); // Start spinner
-    setIsCodeModalOpen(true); // Open modal immediately
+    setIsLoading(true); 
+    setIsCodeModalOpen(true); 
 
     try {
       const response = await fetch('https://airis-backend.onrender.com/fromGraph', {

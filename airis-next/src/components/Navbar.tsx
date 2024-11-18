@@ -41,14 +41,7 @@ export default function Navbar() {
             Home
           </Link>
 
-          <Link
-            href="/home/prompt"
-            className={`text-gray-400 hover:text-gray-200 ${
-              pathname === "/prompt" ? "text-white" : ""
-            }`}
-          >
-            Prompt
-          </Link>
+          
           <Link
             href="/home/graph"
             className={`text-gray-400 hover:text-gray-200 ${
@@ -56,6 +49,14 @@ export default function Navbar() {
             }`}
           >
             Graph
+          </Link>
+          <Link
+            href="/home/prompt"
+            className={`text-gray-400 hover:text-gray-200 ${
+              pathname === "/prompt" ? "text-white" : ""
+            }`}
+          >
+            Prompt
           </Link>
           <Link
             href="/home/docs"

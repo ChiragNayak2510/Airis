@@ -3,6 +3,7 @@ import Login from '@/components/Login';
 import Register from '@/components/Register';
 import { Toaster } from "@/components/ui/toaster"
 import '@/styles/globals.css';
+import Auth from '@/components/Auth';
 
 export const metadata = {
   title: 'Airis',
@@ -17,10 +18,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="bg-background text-foreground">
+        <Auth>
           <main>{children}</main>
-        <Login />
-        <Register /> 
-        <Toaster/>
+          <Login />
+          <Register /> 
+          <Toaster/>
+        </Auth>
       </body>
     </html>
   );

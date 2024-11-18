@@ -3,7 +3,7 @@
 import useRegisterModal from "@/hooks/useRegisterModal";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { date, z } from "zod";
+import { z } from "zod";
 import {
   Form,
   FormControl,
@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import Modal from "./Modal"; 
 import useLoginModal from "@/hooks/useLoginModal";
 import { useRouter } from 'next/navigation';
+import { useState } from "react";
 
 
 const RegisterSchema = z.object({
@@ -34,49 +35,50 @@ const RegisterSchema = z.object({
 });
 
 export function Register() {
-  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
   const registerModal = useRegisterModal();
-  const loginModal = useLoginModal(); 
+  const loginModal = useLoginModal();
+  
+
   const form = useForm<z.infer<typeof RegisterSchema>>({
     resolver: zodResolver(RegisterSchema),
     defaultValues: {
-      first_name:"",
-      last_name:"",
+      first_name: "",
+      last_name: "",
       email: "",
       password: "",
     },
   });
 
   async function onSubmit(data: z.infer<typeof RegisterSchema>) {
-    // console.log(data);
+    setIsLoading(true);
     try {
-
-      const res = await fetch('https://airis-backend.onrender.com/signup',{
-        method:"POST",
-        headers:{
-          "Content-Type":"application/json",
+      const res = await fetch('https://airis-backend.onrender.com/signup', {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-        body:JSON.stringify(data)
-      })
-      const r = await res.json()
-      if(r.success){
-        localStorage.setItem("token", r?.data?.token)
-        registerModal.onClose()
-        router.push('/home')
-      }else{
-        alert(r?.message)
+        body: JSON.stringify(data),
+      });
+      const r = await res.json();
+      if (r.success) {
+        localStorage.setItem("token", r?.data?.user?.token);
+        registerModal.onClose();
+        router.push('/home');
+      } else {
+        alert(r?.message);
       }
-
-
     } catch (error) {
       console.error("Registration error:", error);
+    } finally {
+      setIsLoading(false);
     }
   }
 
   const bodyContent = (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        {/* Username Field */}
         <FormField
           control={form.control}
           name="first_name"
@@ -90,7 +92,6 @@ export function Register() {
             </FormItem>
           )}
         />
-        {/* Username Field */}
         <FormField
           control={form.control}
           name="last_name"
@@ -104,7 +105,6 @@ export function Register() {
             </FormItem>
           )}
         />
-        {/* Email Field */}
         <FormField
           control={form.control}
           name="email"
@@ -118,7 +118,6 @@ export function Register() {
             </FormItem>
           )}
         />
-        {/* Password Field */}
         <FormField
           control={form.control}
           name="password"
@@ -153,8 +152,8 @@ export function Register() {
           Already have an account?{" "}
           <span
             onClick={() => {
-              registerModal.onClose(); // Close the register modal
-              loginModal.onOpen(); // Open the login modal
+              registerModal.onClose();
+              loginModal.onOpen();
             }}
             className="cursor-pointer text-blue-500 hover:underline"
           >
@@ -163,6 +162,7 @@ export function Register() {
         </p>
       }
       onSubmit={form.handleSubmit(onSubmit)}
+      isLoading={isLoading}
     />
   );
 }

@@ -6,6 +6,7 @@ import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import useLoginModal from '@/hooks/useLoginModal';
 import useRegisterModal from '@/hooks/useRegisterModal';
+import { GiArtificialHive } from 'react-icons/gi';
 
 
 const LandingPage = () => {
@@ -15,7 +16,10 @@ const LandingPage = () => {
         <div className={cn(" text-white min-h-screen flex flex-col")}>
             {/* Navbar */}
             <header className="flex justify-between items-center p-6 border-b border-gray-700">
-                <div className="text-2xl font-bold tracking-tight">Airis</div>
+                <div className='flex items-center justify-center gap-4'>
+                    <GiArtificialHive color="white" size={40} />
+                    <div className="text-2xl font-bold tracking-tight">Airis</div>
+                </div>
                 <div className="flex gap-4">
                     {/* <Button variant="outline" className="border-gray-600">
           Login

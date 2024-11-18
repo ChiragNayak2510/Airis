@@ -1,7 +1,8 @@
 "use client";
 
-import useLoginModal from "@/hooks/useLoginModal"; // Import your login modal hook
-import useRegisterModal from "@/hooks/useRegisterModal"; // Import register modal hook
+import { useState } from "react";
+import useLoginModal from "@/hooks/useLoginModal"; 
+import useRegisterModal from "@/hooks/useRegisterModal"; 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -14,7 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import Modal from "./Modal"; // Import the Modal component
+import Modal from "./Modal";
 import { useRouter } from "next/navigation";
 
 const FormSchema = z.object({
@@ -27,9 +28,10 @@ const FormSchema = z.object({
 });
 
 export function Login() {
-  const router= useRouter()
-  const loginModal = useLoginModal(); 
-  const registerModal = useRegisterModal(); 
+  const [isLoading, setIsLoading] = useState(false); 
+  const router = useRouter();
+  const loginModal = useLoginModal();
+  const registerModal = useRegisterModal();
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -40,32 +42,35 @@ export function Login() {
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
-      const res = await fetch('https://airis-backend.onrender.com/login',{
-        method:"POST",
-        headers:{
-          "Content-Type":"application/json",
+      setIsLoading(true); 
+      const res = await fetch('https://airis-backend.onrender.com/login', {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-        body:JSON.stringify(data)
-      })
-      const r = await res.json()
-      if(r.success){
-        localStorage.setItem("token", r?.data?.token)
-        loginModal.onClose()
-        router.push('/home')
-      }else{
-        alert(r?.message)
+        body: JSON.stringify(data),
+      });
+      const r = await res.json();
+      if (r.success) {
+        localStorage.setItem("token", r?.data?.user?.token);
+        loginModal.onClose();
+        router.push('/home');
+      } else {
+        alert(r?.message);
       }
     } catch (error) {
       console.error("Login error:", error);
-    } 
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   const onToggle = () => {
-    console.log(loginModal.isOpen)
+    console.log(loginModal.isOpen);
     if (loginModal.isOpen) {
       loginModal.onClose();
       registerModal.onOpen();
-      console.log(registerModal.isOpen)
+      console.log(registerModal.isOpen);
     }
   };
 
@@ -110,7 +115,7 @@ export function Login() {
 
   return (
     <Modal
-    submitType="Sign In"
+      submitType="Sign In"
       isOpen={loginModal.isOpen}
       title="Welcome Back!"
       onClose={loginModal.onClose}
@@ -118,8 +123,8 @@ export function Login() {
       footer={
         <p className="text-neutral-400 flex justify-center items-center">
           Don't have an account?{" "}
-          <span 
-            onClick={onToggle} // Use the onToggle function
+          <span
+            onClick={onToggle} 
             className="cursor-pointer text-blue-500 hover:underline"
           >
             Create one
@@ -127,6 +132,7 @@ export function Login() {
         </p>
       }
       onSubmit={form.handleSubmit(onSubmit)}
+      isLoading={isLoading} 
     />
   );
 }
