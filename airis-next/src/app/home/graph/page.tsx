@@ -14,6 +14,7 @@ import useGraphStore from '@/hooks/useGraphStore';
 import CodeModal from '@/components/CodeModal'; 
 import HashLoader from "react-spinners/HashLoader";
 import { useToast } from "@/hooks/use-toast"
+import { useRouter } from 'next/navigation';
 
 
 type AwsIcon = {
@@ -63,7 +64,7 @@ const Graph: React.FC = () => {
   const [terraformCode, setTerraformCode] = useState<string>('');
   const [isCodeModalOpen, setIsCodeModalOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
+  const router = useRouter()
   const addNode = (icon: AwsIcon) => {
     setNodes([
       ...nodes,
@@ -90,26 +91,35 @@ const Graph: React.FC = () => {
   const handleGraph = async () => {
     setIsLoading(true); 
     setIsCodeModalOpen(true); 
-
+    setTerraformCode('')
     try {
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        alert('You have logged out!')
+        router.push('/')
+        return;
+      }
+  
       const response = await fetch('https://airis-backend.onrender.com/fromGraph', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'token': token, 
         },
         body: JSON.stringify({ nodes, edges }),
       });
-
+  
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
-
+  
       const { data } = await response.json();
       const formattedCode = convertTerraformToText(data.terraform);
       setTerraformCode(formattedCode); 
     } catch (err) {
       console.error('Error:', err);
-      alert('Something went wrong while generating the code. Please try again.');
+      alert(err);
     } finally {
       setIsLoading(false); 
     }
@@ -130,7 +140,6 @@ const Graph: React.FC = () => {
 
   return (
     <div className="flex justify-center">
-      {/* Sidebar for AWS icons */}
       <div className="h-full w-16 flex flex-col">
         {awsIcons.map((icon) => (
           <button key={icon.id} onClick={() => addNode(icon)}>
@@ -139,9 +148,7 @@ const Graph: React.FC = () => {
         ))}
       </div>
 
-      {/* React Flow Canvas */}
       <div className="h-[100vh] w-full relative">
-        {/* Fixed Button for Code Generation */}
         <button
           onClick={handleGraph}
           className="absolute top-4 right-4 z-20 bg-white text-black px-4 py-2 rounded-lg shadow-lg hover:bg-gray-300"

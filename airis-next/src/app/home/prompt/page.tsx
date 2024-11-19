@@ -1,15 +1,19 @@
 'use client';
 
 import { Input } from '@/components/ui/input';
-import { toast, useToast } from '@/hooks/use-toast';
+import useSaveModal from '@/hooks/useSaveModal';
+import SaveModal from '@/components/SaveModal'; 
+import {useToast } from '@/hooks/use-toast';
 import React, { useState } from 'react';
-import { FaArrowCircleUp, FaClipboard } from "react-icons/fa";
+import { FaArrowCircleUp, FaClipboard, FaSave } from "react-icons/fa";
 import HashLoader from "react-spinners/HashLoader";
+import { useRouter } from 'next/navigation';
 
 const PromptPage = () => {
   const [prompt, setPrompt] = useState('');
-  const [code, setCode] = useState<string | null>(null);
+  const [code, setCode] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { onOpen } = useSaveModal(); 
 
   const handlePromptChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPrompt(e.target.value);
@@ -19,7 +23,8 @@ const PromptPage = () => {
     return terraformCode.replace(/\\n/g, '\n').replace(/\\"/g, '"');
   };
 
-  const {toast} = useToast()
+  const { toast } = useToast();
+  const router = useRouter();
   const handleGenerateCode = async () => {
     setCode(null);
     if (!prompt.trim()) {
@@ -30,9 +35,17 @@ const PromptPage = () => {
 
     setIsLoading(true);
     try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('You have logged out!')
+        router.push('/')
+        return;
+      }
+
       const response = await fetch('https://airis-backend.onrender.com/fromPrompt', {
         method: 'POST',
         headers: {
+          'token': token, 
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ prompt }),
@@ -56,24 +69,32 @@ const PromptPage = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-between p-4 gap-4">
-      {/* Code Section */}
+      <SaveModal />
       <div className="relative w-full max-w-2xl bg-[#212121] p-4 rounded overflow-y-auto flex-1">
-        {/* Copy to Clipboard Button */}
         {code && (
-          <button
-            onClick={() => {
-              if (code) {
-                navigator.clipboard.writeText(code).then(
-                  () => toast({description:'Code copied to clipboard!'}),
-                  (err) => console.error('Could not copy text: ', err)
-                );
-              }
-            }}
-            className="absolute top-2 right-2 bg-gray-800 p-2 rounded-full text-gray-300 hover:text-white hover:bg-gray-700 z-10"
-            aria-label="Copy to clipboard"
-          >
-            <FaClipboard size={20} />
-          </button>
+          <div className="absolute top-2 right-2 flex space-x-2">
+            <button
+              onClick={() => {
+                if (code) {
+                  navigator.clipboard.writeText(code).then(
+                    () => toast({ description: 'Code copied to clipboard!' }),
+                    (err) => console.error('Could not copy text: ', err)
+                  );
+                }
+              }}
+              className="bg-black p-2 rounded-full text-gray-300 hover:text-white hover:bg-gray-700 z-10"
+              aria-label="Copy to clipboard"
+            >
+              <FaClipboard size={20} />
+            </button>
+            <button
+              onClick={onOpen} 
+              className="bg-black p-2 rounded-full text-gray-300 hover:text-white hover:bg-gray-700 z-10"
+              aria-label="Save code"
+            >
+              <FaSave size={20} />
+            </button>
+          </div>
         )}
         {!code ? (
           <div className="flex items-center justify-center min-h-screen text-gray-300">
@@ -90,7 +111,6 @@ const PromptPage = () => {
         )}
       </div>
 
-      {/* Prompt Input Section */}
       <div className="w-full max-w-2xl mb-4 flex gap-2">
         <Input
           type="text"
