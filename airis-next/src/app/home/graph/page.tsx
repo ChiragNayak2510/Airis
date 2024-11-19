@@ -15,6 +15,9 @@ import CodeModal from '@/components/CodeModal';
 import HashLoader from "react-spinners/HashLoader";
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from 'next/navigation';
+import { FaSave } from 'react-icons/fa';
+import useSaveModal from '@/hooks/useSaveModal';
+import SaveModal from '@/components/SaveModal';
 
 
 type AwsIcon = {
@@ -64,6 +67,7 @@ const Graph: React.FC = () => {
   const [terraformCode, setTerraformCode] = useState<string>('');
   const [isCodeModalOpen, setIsCodeModalOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { onOpen } = useSaveModal();
   const router = useRouter()
   const addNode = (icon: AwsIcon) => {
     setNodes([
@@ -140,6 +144,7 @@ const Graph: React.FC = () => {
 
   return (
     <div className="flex justify-center">
+      <SaveModal/>
       <div className="h-full w-16 flex flex-col">
         {awsIcons.map((icon) => (
           <button key={icon.id} onClick={() => addNode(icon)}>
@@ -171,7 +176,6 @@ const Graph: React.FC = () => {
           <Background color="#aaa" gap={16} />
         </ReactFlow>
 
-        {/* Code Modal */}
         <CodeModal
         title={
           isLoading ? "Generating terraform code..." : "Terraform code"
@@ -186,18 +190,29 @@ const Graph: React.FC = () => {
           ) : (
             <div className="relative">
               {terraformCode && (
+                <div className="absolute top-2 right-2 flex space-x-2">
                 <button
                   onClick={() => {
-                    navigator.clipboard.writeText(terraformCode);
-                    toast({
-                      description : 'Copied to clipboard'
-                    })
+                    if (terraformCode) {
+                      navigator.clipboard.writeText(terraformCode).then(
+                        () => toast({ description: 'Code copied to clipboard!' }),
+                        (err) => console.error('Could not copy text: ', err)
+                      );
+                    }
                   }}
-                  className="absolute top-2 right-2 bg-black p-2 rounded-full text-gray-300 hover:text-white hover:bg-gray-700 z-10"
+                  className="bg-black p-2 rounded-full text-gray-300 hover:text-white hover:bg-gray-700 z-10"
                   aria-label="Copy to clipboard"
                 >
                   <FaClipboard size={20} />
                 </button>
+                <button
+                  onClick={onOpen} 
+                  className="bg-black p-2 rounded-full text-gray-300 hover:text-white hover:bg-gray-700 z-10"
+                  aria-label="Save code"
+                >
+                  <FaSave size={20} />
+                </button>
+              </div>
               )}
               <pre className="bg-[#212121] text-white p-4 rounded overflow-auto whitespace-pre-wrap">
                 {terraformCode}
