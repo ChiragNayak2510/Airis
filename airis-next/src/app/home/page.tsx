@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import CodeBlock from "@/components/CodeBlock";
 
 interface HistoryItem {
   id: number;
@@ -56,12 +57,32 @@ const Page: React.FC = () => {
                 className="flex-1 border border-gray-300 rounded p-4 cursor-pointer hover:bg-white hover:text-black"
                 onClick={() => router.push("/home/graph")}
               >
-                <h3 className="text-lg font-bold mb-2">Graph-Based Terraform</h3>
+                <h3 className="text-lg font-bold mb-2">Graph-Based Terraform</h3><div >
+                <h2>How do I run my terraform file?</h2>
+              </div>
                 <p className="text-gray-600">
                   Create Terraform configurations with an intuitive graphical interface.
                 </p>
               </div>
+              
             </div>
+            <div className="mt-5 ">
+                <h2 className="text-xl font-bold mb-4">How do I run my terraform file?</h2>
+                <p>In order to run the file make sure that you have terraform installed on you PC. <a className="text-blue-600" href="https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli" target = "_blank">(Installation guide)</a></p>
+                <p>Once that is done you can easily create your cloud infra without clicking a button. Just run the following commands</p>
+                <br />
+                <h3 className="text-md font-bold mb-4">1. Initalize terraform</h3>
+                <CodeBlock code="terraform init" />
+                <br />
+                <h3 className="text-md font-bold mb-4">2. Validate the terraform file</h3>
+                <CodeBlock code="terraform validate" />
+                <br />
+                <h3 className="text-md font-bold mb-4">3. Run the terraform file</h3>
+                <CodeBlock code="terraform apply" />
+                <br />
+                <h3 className="text-md font-bold mb-4">4. Delete the infra {'('}if you want to {')'}</h3>
+                <CodeBlock code="terraform destroy" />
+              </div>
           </div>
         )}
       </div>
