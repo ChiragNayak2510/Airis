@@ -15,9 +15,9 @@ import {
 import { Input } from "@/components/ui/input";
 import Modal from "./Modal"; 
 import useLoginModal from "@/hooks/useLoginModal";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 import { useState } from "react";
-
+import useUserStore from "@/hooks/useUserStore"; // Import the user store hook
 
 const RegisterSchema = z.object({
   first_name: z.string().min(2, {
@@ -39,7 +39,7 @@ export function Register() {
   const router = useRouter();
   const registerModal = useRegisterModal();
   const loginModal = useLoginModal();
-  
+  const setUser = useUserStore((state: any) => state.setUser); // Access the setUser method
 
   const form = useForm<z.infer<typeof RegisterSchema>>({
     resolver: zodResolver(RegisterSchema),
@@ -54,7 +54,7 @@ export function Register() {
   async function onSubmit(data: z.infer<typeof RegisterSchema>) {
     setIsLoading(true);
     try {
-      const res = await fetch('https://airis-backend.onrender.com/signup', {
+      const res = await fetch("https://airis-backend.onrender.com/signup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -63,9 +63,17 @@ export function Register() {
       });
       const r = await res.json();
       if (r.success) {
-        localStorage.setItem("token", r?.data?.user?.token);
+        const userData = r?.data?.user;
+
+        localStorage.setItem("token", userData?.token);
+        setUser({
+          id: userData.id,
+          created_at: userData.created_at,
+          email: userData.email,
+        });
+
         registerModal.onClose();
-        router.push('/home');
+        router.push("/home");
       } else {
         alert(r?.message);
       }

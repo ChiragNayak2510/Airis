@@ -144,7 +144,7 @@ const Graph: React.FC = () => {
 
   return (
     <div className="flex justify-center">
-      <SaveModal/>
+      <SaveModal prompt={''} terraformCode=''/>
       <div className="h-full w-16 flex flex-col">
         {awsIcons.map((icon) => (
           <button key={icon.id} onClick={() => addNode(icon)}>

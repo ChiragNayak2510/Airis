@@ -3,7 +3,7 @@
 import { Input } from '@/components/ui/input';
 import useSaveModal from '@/hooks/useSaveModal';
 import SaveModal from '@/components/SaveModal'; 
-import {useToast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import React, { useState } from 'react';
 import { FaArrowCircleUp, FaClipboard, FaSave } from "react-icons/fa";
 import HashLoader from "react-spinners/HashLoader";
@@ -11,7 +11,7 @@ import { useRouter } from 'next/navigation';
 
 const PromptPage = () => {
   const [prompt, setPrompt] = useState('');
-  const [code, setCode] = useState<string | null>(null)
+  const [code, setCode] = useState<string>(""); 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { onOpen } = useSaveModal(); 
 
@@ -26,10 +26,10 @@ const PromptPage = () => {
   const { toast } = useToast();
   const router = useRouter();
   const handleGenerateCode = async () => {
-    setCode(null);
+    setCode(""); // Reset code to an empty string
     if (!prompt.trim()) {
       alert('Invalid prompt');
-      setCode(null);
+      setCode("");
       return;
     }
 
@@ -38,7 +38,7 @@ const PromptPage = () => {
       const token = localStorage.getItem('token');
       if (!token) {
         alert('You have logged out!')
-        router.push('/')
+        router.push('/');
         return;
       }
 
@@ -69,9 +69,9 @@ const PromptPage = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-between p-4 gap-4">
-      <SaveModal />
+      <SaveModal prompt={prompt} terraformCode={code} />
       <div className="relative w-full max-w-2xl bg-[#212121] p-4 rounded overflow-y-auto flex-1">
-        {code && (
+        {code ? (
           <div className="absolute top-2 right-2 flex space-x-2">
             <button
               onClick={() => {
@@ -95,7 +95,7 @@ const PromptPage = () => {
               <FaSave size={20} />
             </button>
           </div>
-        )}
+        ) : null}
         {!code ? (
           <div className="flex items-center justify-center min-h-screen text-gray-300">
             {isLoading ? (

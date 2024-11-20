@@ -1,20 +1,67 @@
 import React, { useCallback, useState } from "react";
 import useSaveModal from "@/hooks/useSaveModal";
-import { Button } from "@/components/ui/button"; 
-import { Input } from "@/components/ui/input"; 
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation";
+import useUserStore from "../hooks/useUserStore"; 
 
-const SaveModal: React.FC = () => {
+interface SaveModalProps {
+  prompt?: string;
+  terraformCode: string;
+}
+
+const SaveModal: React.FC<SaveModalProps> = ({ prompt, terraformCode }) => {
   const { isOpen, onClose } = useSaveModal();
-  const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const router = useRouter();
+  
+  const userEmail = useUserStore((state: any) => state.email);
 
   const handleClose = useCallback(() => {
     setInputValue("");
     onClose();
   }, [onClose]);
 
-  const handleSave = () => {
-    console.log("Saving as:", inputValue);
-    handleClose();
+  const handleSave = async () => {
+    if (!inputValue.trim()) {
+      alert("Name cannot be empty");
+      setInputValue("");
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const saveItem = { name: inputValue, prompt, terraformCode, email: userEmail };
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        alert("You have logged out!");
+        router.push("/");
+        return;
+      }
+
+      const response = await fetch("https://airis-backend.onrender.com/save", {
+        method: "POST",
+        headers: {
+          token,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(saveItem),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      const { data } = await response.json();
+      console.log("Save successful:", data);
+      setInputValue("");
+    } catch (err) {
+      console.error("Error:", err);
+      alert("Something went wrong while saving. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (!isOpen) {
@@ -29,7 +76,6 @@ const SaveModal: React.FC = () => {
             <h3 className="text-xl font-semibold text-white">Save As</h3>
           </div>
           <div className="relative p-4 flex flex-col space-y-4">
-            
             <Input
               id="save-as"
               type="text"
@@ -37,6 +83,7 @@ const SaveModal: React.FC = () => {
               onChange={(e) => setInputValue(e.target.value)}
               placeholder="Enter name"
               className="p-2 rounded bg-neutral-700 text-white outline-none focus:ring-2 focus:ring-blue-500"
+              disabled={isLoading}
             />
           </div>
           <div className="flex items-center justify-end p-4 space-x-4">
@@ -44,14 +91,16 @@ const SaveModal: React.FC = () => {
               onClick={handleClose}
               variant="secondary"
               className="text-white px-4 py-2 rounded hover:bg-gray-600 transition"
+              disabled={isLoading}
             >
               Cancel
             </Button>
             <Button
               onClick={handleSave}
               className="text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+              disabled={isLoading}
             >
-              Save
+              {isLoading ? "Saving..." : "Save"}
             </Button>
           </div>
         </div>
