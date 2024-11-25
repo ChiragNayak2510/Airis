@@ -20,12 +20,13 @@ import { useRouter } from "next/navigation";
 import useUserStore from "../hooks/useUserStore";
 
 const FormSchema = z.object({
-  email: z.string().min(2, {
-    message: "Username must be at least 2 characters.",
-  }),
-  password: z.string().min(6, {
-    message: "Password must be at least 6 characters.",
-  }),
+  email: z
+    .string()
+    .email({ message: "Please enter a valid email address." })
+    .nonempty({ message: "Email is required." }),
+  password: z
+    .string()
+    .min(6, { message: "Password must be at least 6 characters." }),
 });
 
 export function Login() {
@@ -33,7 +34,9 @@ export function Login() {
   const router = useRouter();
   const loginModal = useLoginModal();
   const registerModal = useRegisterModal();
-  const setUser = useUserStore((state:any) => state.setUser); 
+  const setUser = useUserStore((state: any) => state.setUser);
+  const setSavedItems = useUserStore((state: any) => state.setSavedItems);
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -42,9 +45,31 @@ export function Login() {
     },
   });
 
-  async function onSubmit(data: z.infer<typeof FormSchema>) {
+  async function fetchSavedItems(token: string, email: string) {
     try {
-      setIsLoading(true);
+      const res = await fetch("https://airis-backend.onrender.com/getSaved", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          'token' : token,
+        },
+        body: JSON.stringify({email}),
+      });
+      const response = await res.json();
+      if (res.ok) {
+        const savedItems = response?.data?.saved
+        setSavedItems(savedItems)
+      } else {
+        console.error("Failed to fetch saved items:", response.message);
+      }
+    } catch (error) {
+      console.error("Error fetching saved items:", error);
+    }
+  }
+
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
+    setIsLoading(true);
+    try {
       const res = await fetch("https://airis-backend.onrender.com/login", {
         method: "POST",
         headers: {
@@ -52,24 +77,29 @@ export function Login() {
         },
         body: JSON.stringify(data),
       });
-      const r = await res.json();
-      if (r.success) {
-        const userData = r?.data?.user;
-        localStorage.setItem("token", userData?.token);
 
-        setUser({
-          id: userData.id,
-          created_at: userData.created_at,
-          email: userData.email,
-        });
-
-        loginModal.onClose();
-        router.push("/home");
-      } else {
-        alert(r?.message);
+      const result = await res.json();
+      if (!res.ok || !result.success) {
+        alert(result?.message || "Login failed. Please try again.");
+        return;
       }
+
+      const userData = result?.data?.user;
+      if (!userData?.token) {
+        alert("Login failed: Invalid token.");
+        return;
+      }
+
+      localStorage.setItem("token", userData.token);
+      setUser({ id: userData.id, email: userData.email });
+
+      await fetchSavedItems(userData.token, userData.email);
+
+      loginModal.onClose();
+      router.push("/home");
     } catch (error) {
       console.error("Login error:", error);
+      alert("An unexpected error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }

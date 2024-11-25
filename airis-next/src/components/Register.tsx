@@ -17,7 +17,7 @@ import Modal from "./Modal";
 import useLoginModal from "@/hooks/useLoginModal";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import useUserStore from "@/hooks/useUserStore"; // Import the user store hook
+import useUserStore from "@/hooks/useUserStore";
 
 const RegisterSchema = z.object({
   first_name: z.string().min(2, {
@@ -39,7 +39,7 @@ export function Register() {
   const router = useRouter();
   const registerModal = useRegisterModal();
   const loginModal = useLoginModal();
-  const setUser = useUserStore((state: any) => state.setUser); // Access the setUser method
+  const setUser = useUserStore((state: any) => state.setUser); 
 
   const form = useForm<z.infer<typeof RegisterSchema>>({
     resolver: zodResolver(RegisterSchema),

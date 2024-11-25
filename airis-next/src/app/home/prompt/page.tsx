@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation';
 const PromptPage = () => {
   const [prompt, setPrompt] = useState('');
   const [code, setCode] = useState<string>(""); 
+  let temp : string = ''
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { onOpen } = useSaveModal(); 
 
@@ -26,7 +27,7 @@ const PromptPage = () => {
   const { toast } = useToast();
   const router = useRouter();
   const handleGenerateCode = async () => {
-    setCode(""); // Reset code to an empty string
+    setCode(""); 
     if (!prompt.trim()) {
       alert('Invalid prompt');
       setCode("");
@@ -42,6 +43,7 @@ const PromptPage = () => {
         return;
       }
 
+      temp = prompt
       const response = await fetch('https://airis-backend.onrender.com/fromPrompt', {
         method: 'POST',
         headers: {
@@ -58,7 +60,6 @@ const PromptPage = () => {
       const { data } = await response.json();
       const formattedCode = convertTerraformToText(data.terraform);
       setCode(formattedCode);
-      setPrompt('');
     } catch (err) {
       console.error('Error:', err);
       alert('Something went wrong while generating the code. Please try again.');

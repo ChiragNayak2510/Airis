@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import CodeBlock from "@/components/CodeBlock";
+import useUserStore from "@/hooks/useUserStore";
 
 interface HistoryItem {
   id: number;
@@ -14,16 +15,15 @@ interface HistoryItem {
 const Page: React.FC = () => {
   const router = useRouter();
   const [selectedCode, setSelectedCode] = useState<string | null>(null);
-  const [historyItems, setHistoryItems] = useState<HistoryItem[] | null>(null);
-
+  const savedItems = useUserStore((state: any) => state.savedItems);
   return (
     <div className="flex min-h-[90vh] justify-center">
       {/* History Section */}
-      <div className={`history-section ${historyItems ? "w-1/4" : "w-full"} p-4 overflow-y-auto`}>
+      <div className={`history-section ${savedItems ? "w-1/4" : "w-full"} p-4 overflow-y-auto`}>
         <h2 className="text-xl font-bold mb-4">Dashboard</h2>
-        {historyItems ? (
+        {savedItems ? (
           <ul>
-            {historyItems.map((item) => (
+            {savedItems.map((item) => (
               <li key={item.id}>
                 <Button
                   variant={selectedCode === item.code ? "white" : "outline"}
@@ -87,8 +87,8 @@ const Page: React.FC = () => {
         )}
       </div>
 
-      {/* Code Section */}
-      {historyItems && (
+
+      {savedItems && (
         <div className="code-section w-3/4 p-4 overflow-y-auto">
           <h2 className="text-xl font-bold mb-4">Terraform code</h2>
           <pre className="bg-[#212121] p-4 rounded h-full overflow-y-auto">

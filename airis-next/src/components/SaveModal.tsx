@@ -16,7 +16,7 @@ const SaveModal: React.FC<SaveModalProps> = ({ prompt, terraformCode }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const router = useRouter();
   
-  const userEmail = useUserStore((state: any) => state.email);
+  const user = useUserStore((state: any) => state.user);
 
   const handleClose = useCallback(() => {
     setInputValue("");
@@ -32,10 +32,11 @@ const SaveModal: React.FC<SaveModalProps> = ({ prompt, terraformCode }) => {
 
     try {
       setIsLoading(true);
-      const saveItem = { name: inputValue, prompt, terraformCode, email: userEmail };
+      const saveItem = { name: inputValue, prompt, terraform : terraformCode, email: user?.email };
+      console.log(saveItem)
       const token = localStorage.getItem("token");
 
-      if (!token) {
+      if (!token || !user) {
         alert("You have logged out!");
         router.push("/");
         return;
@@ -54,7 +55,8 @@ const SaveModal: React.FC<SaveModalProps> = ({ prompt, terraformCode }) => {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       const { data } = await response.json();
-      console.log("Save successful:", data);
+      alert("Save successful:");
+      onClose()
       setInputValue("");
     } catch (err) {
       console.error("Error:", err);
