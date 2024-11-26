@@ -3,21 +3,33 @@ import useSaveModal from "@/hooks/useSaveModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
-import useUserStore from "../hooks/useUserStore"; 
+import useUserStore from "../hooks/useUserStore";
+import { Edge } from "@xyflow/react";
+
+interface SavedItem {
+  id: string;
+  name: string;
+  prompt: string;
+  nodes?: Node[];
+  edges?: Edge[];
+  terraform: string;
+  email : ''
+}
 
 interface SaveModalProps {
   prompt?: string;
-  terraformCode: string;
+  terraform: string;
 }
 
-const SaveModal: React.FC<SaveModalProps> = ({ prompt, terraformCode }) => {
+const SaveModal: React.FC<SaveModalProps> = ({ prompt, terraform }) => {
   const { isOpen, onClose } = useSaveModal();
   const [inputValue, setInputValue] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const router = useRouter();
-  
-  const user = useUserStore((state: any) => state.user);
 
+  const user = useUserStore((state: any) => state.user);
+  const addSavedItem = useUserStore((state: any) => state.addSavedItem);
+  const savedItems = useUserStore((state:any)=>state.savedItems)
   const handleClose = useCallback(() => {
     setInputValue("");
     onClose();
@@ -32,8 +44,14 @@ const SaveModal: React.FC<SaveModalProps> = ({ prompt, terraformCode }) => {
 
     try {
       setIsLoading(true);
-      const saveItem = { name: inputValue, prompt, terraform : terraformCode, email: user?.email };
-      console.log(saveItem)
+      const saveItem: SavedItem = {
+        id: "",
+        name: inputValue,
+        prompt: prompt || "",
+        terraform : terraform,
+        email: user?.email || "",
+      };
+
       const token = localStorage.getItem("token");
 
       if (!token || !user) {
@@ -54,10 +72,22 @@ const SaveModal: React.FC<SaveModalProps> = ({ prompt, terraformCode }) => {
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
+
       const { data } = await response.json();
-      alert("Save successful:");
-      onClose()
-      setInputValue("");
+
+      const savedItem: SavedItem = {
+        id: data._id,
+        name: data.name,
+        prompt: data.prompt,
+        nodes: data.nodes || null,
+        edges: data.edges || null,
+        terraform: data.terraform,
+        email : data.email
+      };
+
+      addSavedItem(savedItem); 
+      alert("Save successful!");
+      handleClose();
     } catch (err) {
       console.error("Error:", err);
       alert("Something went wrong while saving. Please try again.");

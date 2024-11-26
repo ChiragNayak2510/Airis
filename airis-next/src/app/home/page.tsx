@@ -5,32 +5,36 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import CodeBlock from "@/components/CodeBlock";
 import useUserStore from "@/hooks/useUserStore";
+import { Edge } from "@xyflow/react";
 
-interface HistoryItem {
-  id: number;
-  title: string;
-  code: string;
+interface SavedItem {
+  id: string;
+  name: string;
+  prompt : string;
+  nodes? : Node[];
+  edges? : Edge[];
+  terraformCode : string
 }
 
 const Page: React.FC = () => {
   const router = useRouter();
   const [selectedCode, setSelectedCode] = useState<string | null>(null);
   const savedItems = useUserStore((state: any) => state.savedItems);
+  console.log(savedItems)
   return (
     <div className="flex min-h-[90vh] justify-center">
-      {/* History Section */}
       <div className={`history-section ${savedItems ? "w-1/4" : "w-full"} p-4 overflow-y-auto`}>
         <h2 className="text-xl font-bold mb-4">Dashboard</h2>
         {savedItems ? (
           <ul>
-            {savedItems.map((item) => (
+            {savedItems.map((item : SavedItem) => (
               <li key={item.id}>
                 <Button
-                  variant={selectedCode === item.code ? "white" : "outline"}
-                  onClick={() => setSelectedCode(item.code)}
+                  variant={selectedCode === item.terraformCode ? "white" : "outline"}
+                  onClick={() => setSelectedCode(item.terraformCode)}
                   className={`w-full text-left p-2 mb-2`}
                 >
-                  {item.title}
+                  {item.name}
                 </Button>
               </li>
             ))}
@@ -41,7 +45,6 @@ const Page: React.FC = () => {
               Welcome to Airis dashboard. Your history section is empty. Let&apos;s get you started.
             </p>
             <div className="flex flex-col lg:flex-row gap-4 mt-6">
-              {/* Prompt-Based Terraform */}
               <div
                 className="flex-1 border border-gray-300 rounded p-4 cursor-pointer hover:bg-white hover:text-black"
                 onClick={() => router.push("/home/prompt")}
@@ -52,7 +55,6 @@ const Page: React.FC = () => {
                 </p>
               </div>
 
-              {/* Graph-Based Terraform */}
               <div
                 className="flex-1 border border-gray-300 rounded p-4 cursor-pointer hover:bg-white hover:text-black"
                 onClick={() => router.push("/home/graph")}

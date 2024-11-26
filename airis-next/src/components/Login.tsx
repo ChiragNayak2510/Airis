@@ -18,6 +18,16 @@ import { Input } from "@/components/ui/input";
 import Modal from "./Modal";
 import { useRouter } from "next/navigation";
 import useUserStore from "../hooks/useUserStore";
+import { Edge } from "@xyflow/react";
+
+interface SavedItem {
+  id: string;
+  name: string;
+  prompt : string;
+  nodes? : Node[];
+  edges? : Edge[];
+  terraformCode : string
+}
 
 const FormSchema = z.object({
   email: z
@@ -57,8 +67,16 @@ export function Login() {
       });
       const response = await res.json();
       if (res.ok) {
-        const savedItems = response?.data?.saved
-        setSavedItems(savedItems)
+        const savedItemsResponse = response?.data?.saved || [];
+        const savedItems: SavedItem[] = savedItemsResponse.map((item: any) => ({
+          id: item._id || "", 
+          name: item.name || "", 
+          prompt: item.prompt || "",
+          nodes: item.nodes || null,
+          edges: item.edges || null,
+          terraformCode: item.terraform || "",
+        }));
+        setSavedItems(savedItems);
       } else {
         console.error("Failed to fetch saved items:", response.message);
       }

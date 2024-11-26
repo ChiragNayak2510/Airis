@@ -70,7 +70,7 @@ const PromptPage = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-between p-4 gap-4">
-      <SaveModal prompt={prompt} terraformCode={code} />
+      <SaveModal prompt={prompt} terraform={code} />
       <div className="relative w-full max-w-2xl bg-[#212121] p-4 rounded overflow-y-auto flex-1">
         {code ? (
           <div className="absolute top-2 right-2 flex space-x-2">
