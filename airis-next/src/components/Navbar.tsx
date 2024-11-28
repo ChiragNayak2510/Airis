@@ -58,14 +58,6 @@ export default function Navbar() {
           >
             Prompt
           </Link>
-          <Link
-            href="/home/docs"
-            className={`text-gray-400 hover:text-gray-200 ${
-              pathname === "/docs" ? "text-white" : ""
-            }`}
-          >
-            Documentation
-          </Link>
         </div>
 
         {/* Right Section */}

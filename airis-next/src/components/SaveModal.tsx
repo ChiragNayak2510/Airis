@@ -29,7 +29,6 @@ const SaveModal: React.FC<SaveModalProps> = ({ prompt, terraform }) => {
 
   const user = useUserStore((state: any) => state.user);
   const addSavedItem = useUserStore((state: any) => state.addSavedItem);
-  const savedItems = useUserStore((state:any)=>state.savedItems)
   const handleClose = useCallback(() => {
     setInputValue("");
     onClose();
@@ -72,20 +71,6 @@ const SaveModal: React.FC<SaveModalProps> = ({ prompt, terraform }) => {
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
-
-      const { data } = await response.json();
-
-      const savedItem: SavedItem = {
-        id: data._id,
-        name: data.name,
-        prompt: data.prompt,
-        nodes: data.nodes || null,
-        edges: data.edges || null,
-        terraform: data.terraform,
-        email : data.email
-      };
-
-      addSavedItem(savedItem); 
       alert("Save successful!");
       handleClose();
     } catch (err) {

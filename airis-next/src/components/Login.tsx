@@ -19,7 +19,6 @@ import Modal from "./Modal";
 import { useRouter } from "next/navigation";
 import useUserStore from "../hooks/useUserStore";
 import { Edge } from "@xyflow/react";
-
 interface SavedItem {
   id: string;
   name: string;
@@ -55,35 +54,7 @@ export function Login() {
     },
   });
 
-  async function fetchSavedItems(token: string, email: string) {
-    try {
-      const res = await fetch("https://airis-backend.onrender.com/getSaved", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          'token' : token,
-        },
-        body: JSON.stringify({email}),
-      });
-      const response = await res.json();
-      if (res.ok) {
-        const savedItemsResponse = response?.data?.saved || [];
-        const savedItems: SavedItem[] = savedItemsResponse.map((item: any) => ({
-          id: item._id || "", 
-          name: item.name || "", 
-          prompt: item.prompt || "",
-          nodes: item.nodes || null,
-          edges: item.edges || null,
-          terraformCode: item.terraform || "",
-        }));
-        setSavedItems(savedItems);
-      } else {
-        console.error("Failed to fetch saved items:", response.message);
-      }
-    } catch (error) {
-      console.error("Error fetching saved items:", error);
-    }
-  }
+  
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     setIsLoading(true);
@@ -110,9 +81,6 @@ export function Login() {
 
       localStorage.setItem("token", userData.token);
       setUser({ id: userData.id, email: userData.email });
-
-      await fetchSavedItems(userData.token, userData.email);
-
       loginModal.onClose();
       router.push("/home");
     } catch (error) {

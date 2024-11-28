@@ -1,38 +1,92 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import CodeBlock from "@/components/CodeBlock";
-import useUserStore from "@/hooks/useUserStore";
 import { Edge } from "@xyflow/react";
+import useUserStore from "@/hooks/useUserStore";
 
 interface SavedItem {
   id: string;
   name: string;
-  prompt : string;
-  nodes? : Node[];
-  edges? : Edge[];
-  terraformCode : string
+  prompt: string;
+  nodes?: Node[];
+  edges?: Edge[];
+  terraformCode: string;
+}
+
+async function fetchSavedItems(
+  token: string,
+  email: string,
+  setSavedItems: React.Dispatch<React.SetStateAction<SavedItem[]>>
+): Promise<void> {
+  if (!token || !email) {
+    console.error("Token and email are required to fetch saved items.");
+    return;
+  }
+
+  try {
+    const res = await fetch("https://airis-backend.onrender.com/getSaved", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+      },
+      body: JSON.stringify({ email }),
+    });
+
+    const response = await res.json();
+
+    if (!res.ok) {
+      console.error(`Failed to fetch saved items: ${response.message}`);
+      return;
+    }
+
+    const savedItemsResponse = response?.data?.saved || [];
+    const savedItems: SavedItem[] = savedItemsResponse.map((item: any) => ({
+      id: item._id || "",
+      name: item.name || "",
+      prompt: item.prompt || "",
+      nodes: item.nodes || null,
+      edges: item.edges || null,
+      terraformCode: item.terraform || "Your terraform is missing.",
+    }));
+    setSavedItems(savedItems);
+  } catch (error) {
+    console.error("Error fetching saved items:", error);
+  }
 }
 
 const Page: React.FC = () => {
   const router = useRouter();
   const [selectedCode, setSelectedCode] = useState<string | null>(null);
-  const savedItems = useUserStore((state: any) => state.savedItems);
-  console.log(savedItems)
+  const [savedItems, setSavedItems] = useState<SavedItem[]>([]);
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const user = useUserStore((state:any)=>(state.user))
+
+  useEffect(() => {
+    if (token && user) {
+      fetchSavedItems(token, user.email, setSavedItems);
+    } else {
+      alert("You have logged out!");
+      router.push("/");
+    }
+  }, []);
+
+  const hasSavedItems = savedItems.length > 0;
+
   return (
     <div className="flex min-h-[90vh] justify-center">
-      <div className={`history-section ${savedItems ? "w-1/4" : "w-full"} p-4 overflow-y-auto`}>
+      <div className={`history-section ${hasSavedItems ? "w-1/4" : "w-full"} p-4 overflow-y-auto`}>
         <h2 className="text-xl font-bold mb-4">Dashboard</h2>
-        {savedItems ? (
+        {hasSavedItems ? (
           <ul>
-            {savedItems.map((item : SavedItem) => (
+            {savedItems.map((item) => (
               <li key={item.id}>
                 <Button
                   variant={selectedCode === item.terraformCode ? "white" : "outline"}
                   onClick={() => setSelectedCode(item.terraformCode)}
-                  className={`w-full text-left p-2 mb-2`}
+                  className="w-full text-left p-2 mb-2"
                 >
                   {item.name}
                 </Button>
@@ -54,47 +108,26 @@ const Page: React.FC = () => {
                   Generate Terraform configurations easily by describing your requirements.
                 </p>
               </div>
-
               <div
                 className="flex-1 border border-gray-300 rounded p-4 cursor-pointer hover:bg-white hover:text-black"
                 onClick={() => router.push("/home/graph")}
               >
-                <h3 className="text-lg font-bold mb-2">Graph-Based Terraform</h3><div >
-                <h2>How do I run my terraform file?</h2>
-              </div>
+                <h3 className="text-lg font-bold mb-2">Graph-Based Terraform</h3>
                 <p className="text-gray-600">
                   Create Terraform configurations with an intuitive graphical interface.
                 </p>
               </div>
-              
             </div>
-            <div className="mt-5 ">
-                <h2 className="text-xl font-bold mb-4">How do I run my terraform file?</h2>
-                <p>In order to run the file make sure that you have terraform installed on you PC. <a className="text-blue-600" href="https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli" target = "_blank">(Installation guide)</a></p>
-                <p>Once that is done you can easily create your cloud infra without clicking a button. Just run the following commands</p>
-                <br />
-                <h3 className="text-md font-bold mb-4">1. Initalize terraform</h3>
-                <CodeBlock code="terraform init" />
-                <br />
-                <h3 className="text-md font-bold mb-4">2. Validate the terraform file</h3>
-                <CodeBlock code="terraform validate" />
-                <br />
-                <h3 className="text-md font-bold mb-4">3. Run the terraform file</h3>
-                <CodeBlock code="terraform apply" />
-                <br />
-                <h3 className="text-md font-bold mb-4">4. Delete the infra {'('}if you want to {')'}</h3>
-                <CodeBlock code="terraform destroy" />
-              </div>
           </div>
         )}
       </div>
 
-
-      {savedItems && (
+      {/* Code Section */}
+      {hasSavedItems && (
         <div className="code-section w-3/4 p-4 overflow-y-auto">
           <h2 className="text-xl font-bold mb-4">Terraform code</h2>
           <pre className="bg-[#212121] p-4 rounded h-full overflow-y-auto">
-            {selectedCode ? selectedCode : "Select a history item to view the code."}
+            {selectedCode ? selectedCode : "Select a saved item."}
           </pre>
         </div>
       )}
